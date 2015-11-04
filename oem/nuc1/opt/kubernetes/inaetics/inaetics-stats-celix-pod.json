@@ -1,0 +1,38 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "inaetics-stats-celix-pod",
+    "creationTimestamp": null,
+    "labels": {
+      "name": "inaetics-stats-celix-pod"
+    }
+  },
+  "spec": {
+        "containers": [
+          {
+            "name": "inaetics-stats-celix-container",
+            "image": "172.17.8.20:5000/inaetics/celix-agent",
+            "args": [
+              "/tmp/node-agent.sh",
+              "celix_stats"
+            ],
+            "env": [
+              {
+                "name": "ETCDCTL_PEERS",
+                "value": "172.17.8.20:2379"
+              }
+            ],
+            "resources": {
+              "limits" : {
+                "memory": "100Mi"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent"
+          }
+        ],
+        "restartPolicy": "Always",
+        "dnsPolicy": "ClusterFirst"
+      }
+}

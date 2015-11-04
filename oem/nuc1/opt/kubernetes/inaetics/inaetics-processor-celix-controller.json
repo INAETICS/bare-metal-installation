@@ -1,0 +1,65 @@
+{
+  "kind": "ReplicationController",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "inaetics-processor-celix-controller",
+    "creationTimestamp": null,
+    "labels": {
+      "name": "inaetics-processor-celix-controller"
+    }
+  },
+  "spec": {
+    "replicas": 0,
+    "selector": {
+      "name": "inaetics-processor-celix-pod"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "name": "inaetics-processor-celix-pod"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "inaetics-processor-celix-container",
+            "image": "172.17.8.20:5000/inaetics/celix-agent",
+            "args": [
+              "/tmp/node-agent.sh",
+              "celix_3"
+            ],
+            "env": [
+              {
+                "name": "ETCDCTL_PEERS",
+                "value": "172.17.8.20:2379"
+              }
+            ],
+            "resources": {
+              "limits" : {
+                "memory": "100Mi"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "livenessProbe": {
+              "exec" : {
+                "command" : [
+                  "cat",
+                  "/tmp/health"
+                ],
+                "initialDelaySeconds": 10,
+                "timeoutSeconds": 10
+              }
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "dnsPolicy": "ClusterFirst"
+      }
+    }
+  },
+  "status": {
+    "replicas": 0
+  }
+}

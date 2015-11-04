@@ -1,0 +1,1 @@
+copy flannel.tar, hyperkube.tar, pause.tar, celix-agent.tr, felix-agent.tar, node-provisioning.tar, registry.tar to this dir

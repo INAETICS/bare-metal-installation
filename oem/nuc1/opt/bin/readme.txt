@@ -1,0 +1,1 @@
+copy kubectl to this directory

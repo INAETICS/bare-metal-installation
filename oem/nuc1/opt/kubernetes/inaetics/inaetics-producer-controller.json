@@ -1,0 +1,79 @@
+{
+  "kind": "ReplicationController",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "inaetics-producer-controller",
+    "creationTimestamp": null,
+    "labels": {
+      "name": "inaetics-producer-controller"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "name": "inaetics-producer-pod"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "name": "inaetics-producer-pod"
+        }
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "configs",
+            "hostPath": {
+              "path": "/opt/configs"
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "inaetics-producer-container",
+            "image": "172.17.8.20:5000/inaetics/felix-agent",
+            "args": [
+              "/tmp/node-agent.sh",
+              "felix_4"
+            ],
+            "env": [
+              {
+                "name": "ETCDCTL_PEERS",
+                "value": "172.17.8.20:2379"
+              }
+            ],
+            "resources": {
+              "limits" : {
+                "memory": "300Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "configs",
+                "mountPath": "/tmp/conf"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "livenessProbe": {
+              "exec" : {
+                "command" : [
+                  "cat",
+                  "/tmp/health"
+                ],
+                "initialDelaySeconds": 10,
+                "timeoutSeconds": 10
+              }
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "dnsPolicy": "ClusterFirst"
+      }
+    }
+  },
+  "status": {
+    "replicas": 0
+  }
+}

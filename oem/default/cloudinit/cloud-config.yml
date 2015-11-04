@@ -1,0 +1,42 @@
+#cloud-config
+
+hostname: $HOSTNAME
+ssh_authorized_keys:
+  - $PUBKEY
+
+coreos:
+  update:
+    reboot-strategy: off
+  units:
+
+    - name: "systemd-networkd-wait-online.service"
+      command: start
+
+    - name: "setup-env.service"
+      command: start
+      runtime: true
+      content: |
+        [Unit]
+        Description=Setup environment with proper public/private IPv4 addresses
+        Before=etcd2.service
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/share/oem/setup-env.sh
+
+    - name: "oem-cloudinit.service"
+      command: start
+      runtime: true
+      content: |
+          [Unit]
+          Description=call cloud-init for our 2nd-stage user data configuration
+          After=setup-env.service
+
+          [Service]
+          Type=oneshot
+          RemainAfterExit=yes
+          EnvironmentFile=/etc/environment
+          ExecStart=/usr/bin/coreos-cloudinit --from-file=/usr/share/oem/cloud-config-2nd-stage.yml
+
+###EOF###

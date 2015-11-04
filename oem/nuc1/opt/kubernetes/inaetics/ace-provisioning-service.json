@@ -1,0 +1,23 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "ace-provisioning-service",
+    "creationTimestamp": null
+  },
+  "spec": {
+    "ports": [
+      {
+        "protocol": "TCP",
+        "port": 90,
+        "targetPort": 8080,
+        "nodePort": 90
+      }
+    ],
+    "selector": {
+      "name": "ace-provisioning-pod"
+    },
+    "type": "NodePort",
+    "sessionAffinity": "None"
+  }
+}

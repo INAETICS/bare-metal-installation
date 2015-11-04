@@ -1,0 +1,1 @@
+copy flannel.tar, hyperkube.tar and pause.tar to this dir

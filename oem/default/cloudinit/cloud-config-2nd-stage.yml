@@ -1,0 +1,62 @@
+#cloud-config
+
+coreos:
+  update:
+    reboot-strategy: off
+  etcd2:
+    name: worker-$HOSTNAME
+    proxy: on
+    listen-client-urls: http://0.0.0.0:2379
+    initial-cluster: controller=http://172.17.8.20:2380
+  fleet:
+    public-ip: $public_ipv4
+    etcd_servers: http://172.17.8.20:2379
+    metadata: role=worker
+  units:
+    
+    - name: "etcd2.service"
+      command: start
+
+    - name: "fleet.service"
+      drop-ins:
+        - name: 50-after-docker-load.conf
+          content: |
+            [Unit]
+            Requires=docker-load.service
+            After=docker-load.service
+            
+    - name: "flanneld.service"
+      drop-ins:
+        - name: 50-network-config.conf
+          content: |
+            [Service]
+            ExecStartPre=-/usr/bin/docker load -i /opt/images/flannel.tar
+        
+    - name: "docker-load.service"
+      content: |
+        [Unit]
+        Description=Docker Load Service
+        Requires=flanneld.service docker.service
+        After=flanneld.service docker.service
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/opt/bin/load-docker-images.sh
+        TimeoutStartSec=0
+        Restart=no
+        
+    - name: "kubernetes.service"
+      command: start
+      content: |
+        [Unit]
+        Description=Kubernetes service
+        Requires=etcd2.service docker-load.service
+        After=etcd2.service docker-load.service
+        
+        [Service]
+        ExecStart=/usr/bin/kubelet --api_servers=https://172.17.8.20 --register-node=true --hostname-override=$public_ipv4 --allow-privileged=true --kubeconfig=/opt/kubernetes/worker-kubeconfig.yaml --tls-cert-file=/opt/ssl/certs/worker.pem --tls-private-key-file=/opt/ssl/priv/worker-key.pem --config=/opt/kubernetes/manifests  --node-status-update-frequency=2s --logtostderr=true --v=3
+        Restart=always
+        RestartSec=10
+
+###EOF###

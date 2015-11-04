@@ -1,0 +1,23 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "inaetics-viewer-service",
+    "creationTimestamp": null
+  },
+  "spec": {
+    "ports": [
+      {
+        "protocol": "TCP",
+        "port": 80,
+        "targetPort": 8080,
+        "nodePort": 80
+      }
+    ],
+    "selector": {
+      "name": "inaetics-datastore-viewer-pod"
+    },
+    "type": "NodePort",
+    "sessionAffinity": "None"
+  }
+}

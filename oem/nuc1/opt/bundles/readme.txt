@@ -1,0 +1,1 @@
+copy bundles and goshscript etc. to this directory

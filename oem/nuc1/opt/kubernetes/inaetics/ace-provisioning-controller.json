@@ -1,0 +1,69 @@
+{
+  "kind": "ReplicationController",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "ace-provisioning-controller",
+    "creationTimestamp": null,
+    "labels": {
+      "name": "ace-provisioning-controller"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "name": "ace-provisioning-pod"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "name": "ace-provisioning-pod"
+        }
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "bundles",
+            "nfs": {
+              "server": "172.17.8.20",
+              "path": "/opt/bundles"
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "ace-provisioning-container",
+            "image": "172.17.8.20:5000/inaetics/node-provisioning",
+            "args": [
+              "/tmp/node-provisioning.sh"
+            ],
+            "env": [
+              {
+                "name": "ETCDCTL_PEERS",
+                "value": "172.17.8.20:2379"
+              }
+            ],
+            "resources": {
+              "limits" : {
+                "memory": "200Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "bundles",
+                "mountPath": "/bundles"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent"
+          }
+        ],
+        "restartPolicy": "Always",
+        "dnsPolicy": "ClusterFirst"
+      }
+    }
+  },
+  "status": {
+    "replicas": 0
+  }
+}
