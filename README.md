@@ -41,15 +41,23 @@ Copy the resulting id_rsa.pub to the ${BAREMETAL_INSTALL}/ssh directory.
 
 ### Generating the SSL keys
 
-The baremetal demonstrator uses several SSL certificates to secure Kubernetes. For this we use the gen_certs.sh script found in the ${BAREMETAL_INSTALL}/ssl directory. Running this script generates several keypairs in ${BAREMETAL_INSTALL}/ssl/out. Each of these keypairs are properly signed by another generated keypair that acts as certificate authority. After the generation is complete, the installation scripts will use the correct files automatically (it uses symbolic links to include the correct file).
+The baremetal demonstrator uses several SSL certificates to secure Kubernetes. For this we use the gen_certs.sh script found in the ${BAREMETAL_INSTALL}/ssl directory. Running this script generates several keypairs in ${BAREMETAL_INSTALL}/ssl/out. Each of these keypairs are properly signed by another generated keypair that acts as certificate authority. After the generation is complete, the installation scripts will use the correct files automatically (they are copied to the needed locations later on).
 
 ### Preparing a bootable USB disk
 
-The Intel NUCs are UEFI based machines, which allows us to use a nice trick to boot any ISO image, such as CoreOS, without the need to burn that image to disk (as you normally would to when creating a bootable CD or USB drive). This allows us to use the USB drive to carry our INAETICS installation files as well. Creating such a "multi-boot" USB drive is nicely documented on [this page](http://ubuntuforums.org/showthread.php?t=2276498).
+The Intel NUCs are UEFI based machines, which allows us to use a nice trick to boot any ISO image, such as CoreOS, without the need to burn that image to disk (as you normally would to when creating a bootable CD or USB drive). This allows us to use the USB drive to carry our INAETICS installation files as well. Creating such a "multi-boot" USB drive is nicely documented on [this page](http://ubuntuforums.org/showthread.php?t=2276498). Finally you need to edit `/boot/grub/grub.cfg`, replace the content with
 
-Assuming you've created a correctly functioning bootable USB drive, you can download the latest CoreOS production disk image that we will install on the NUCs. This is done by running the ${BAREMETAL_INSTALL}/download.sh script. This will download and verify the correct CoreOS image (TODO verify that this script still has the correct PGP key!).
+    menuentry 'CoreOS' {
+	    set isofile="/coreos_production_iso_image.iso"
+	    loopback loop $isofile
+	    linux (loop)/coreos/vmlinuz ro noswap console=tty0 console=ttyS0 coreos.autologin=tty1 coreos.autologin=ttyS0 --
+	    initrd (loop)/coreos/cpio.gz
+    }
 
-Now we can copy the files from ${BAREMETAL_INSTALL} to the bootable USB drive using the ${BAREMETAL_INSTALL}/copy_all.sh. This script needs a single argument which should be the path to your mounted USB drive. For example:
+### Downloading needed binaries, docker images and CoreOS images
+For running the INAETICS demonstrator, several INAETICS and 3rd party binaries and Docker images are needed. Run the `${BAREMETAL_INSTALL}/initial-download.sh` script to do this. It also downloads and verifies the CoreOS image which will be used for booting the USB stick and installing the NUCs.
+
+Now we can copy the files from ${BAREMETAL_INSTALL} to the bootable USB drive using the `${BAREMETAL_INSTALL}/copy_all.sh`. This script needs a single argument which should be the path to your mounted USB drive. For example:
 
     $ ./copy_all.sh /Volumes/GRUB2EFI
 
@@ -61,10 +69,14 @@ The installation is to be repeated for each NUC. We assign a hostname to each of
 
 To install CoreOS, boot from the USB drive, mount the disk and run the installer script (replace $NUC with the name of the NUC you’re installing to, e.g. nuc1):
 
-    $ sudo mount /dev/sdb1 /mnt && cd /mnt/inaetics
+    $ sudo mount /dev/sdb1 /mnt && cd /mnt
     $ export NUC=nuc1
     $ sudo ./coreos-install.sh -d /dev/sda -n $NUC
     $ sudo reboot
 
 Unplug the USB drive and watch your NUC boot into the freshly installed CoreOS image. You should be able to access it through SSH using the key you've generated previously (see above).
+
+## Running the demonstrator
+
+The installation contains everything which is needed for running the INAETICS demonstrator. You only need be sure that you start NUC1 first, because it is the DHCP server for the other NUCs. For more information on how to check, use and debug the demonstrator, please see the documentation on our [Kubernetes Demo Cluster repository](https://github.com/INAETICS/kubernetes-demo-cluster)
 

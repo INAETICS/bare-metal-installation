@@ -1,2 +1,4 @@
 *.bz2
 *.bz2.sig
+*.iso*
+id_rsa*
