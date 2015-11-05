@@ -12,4 +12,6 @@ cp ssl/out/!(*-key.pem|*.srl) oem/nuc1/opt/ssl/certs/
 cp ssl/out/*-key.pem oem/default/opt/ssl/priv/
 cp ssl/out/*-key.pem oem/nuc1/opt/ssl/priv/
 
-rsync -rvcW --copy-links --filter="exclude copy_all.sh" --filter="exclude download-coreos.sh" --filter="exclude initial-download.sh" --filter="tmp" . $1
+rsync -rvcW --filter="exclude copy_all.sh" --filter="exclude download-coreos.sh" --filter="exclude initial-download.sh" --filter="exclude tmp" --filter="exclude .git" --filter="exclude .gitignore" . $1
+
+find "$1" -iname "*.sh" | xargs chmod +x

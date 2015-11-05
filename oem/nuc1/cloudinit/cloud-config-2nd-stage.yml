@@ -37,6 +37,7 @@ coreos:
               [Service]
               Environment=FLANNELD_IFACE=$public_ipv4
               Environment=FLANNELD_ETCD_ENDPOINTS=http://$public_ipv4:2379
+              ExecStartPre=-/usr/bin/docker load -i /opt/images/flannel.tar
               ExecStartPre=/bin/bash -c 'until /usr/bin/etcdctl set /coreos.com/network/config \'{"Network":"10.2.0.0/16","Backend":{"Type":"vxlan"}}\'; do echo "waiting for etcd..."; sleep 1; done'
 
     - name: "docker.service"
@@ -83,7 +84,7 @@ coreos:
         After=etcd2.service docker-load.service
         
         [Service]
-        ExecStart=/usr/bin/kubelet --api_servers=127.0.0.1:10080 --register-node=false --allow-privileged=true --config=/home/core/k8s/manifests --hostname-override=$public_ipv4 --logtostderr=true --v=3
+        ExecStart=/usr/bin/kubelet --api_servers=127.0.0.1:10080 --register-node=false --allow-privileged=true --config=/opt/kubernetes/manifests --hostname-override=$public_ipv4 --logtostderr=true --v=3
         ExecStartPost=/opt/bin/create-k8s-env.sh
         Restart=always
         RestartSec=10

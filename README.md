@@ -55,7 +55,7 @@ The Intel NUCs are UEFI based machines, which allows us to use a nice trick to b
     }
 
 ### Downloading needed binaries, docker images and CoreOS images
-For running the INAETICS demonstrator, several INAETICS and 3rd party binaries and Docker images are needed. Run the `${BAREMETAL_INSTALL}/initial-download.sh` script to do this. It also downloads and verifies the CoreOS image which will be used for booting the USB stick and installing the NUCs.
+For running the INAETICS demonstrator, several INAETICS and 3rd party binaries and Docker images are needed. Run the `${BAREMETAL_INSTALL}/initial-download.sh` script to do this. It also downloads and verifies the CoreOS image which will be used for booting the USB drive and installing the NUCs.
 
 Now we can copy the files from ${BAREMETAL_INSTALL} to the bootable USB drive using the `${BAREMETAL_INSTALL}/copy_all.sh`. This script needs a single argument which should be the path to your mounted USB drive. For example:
 
@@ -67,11 +67,10 @@ The installation is to be repeated for each NUC. We assign a hostname to each of
 
 > If you want to use your own naming convention instead, be sure to modify the directory names in ${BAREMETAL_INSTALL}/oem to reflect this!
 
-To install CoreOS, boot from the USB drive, mount the disk and run the installer script (replace $NUC with the name of the NUC you’re installing to, e.g. nuc1):
+To install CoreOS, boot from the USB drive, mount the disk and run the installer script (replace <NAME> with the name of the NUC you’re installing to, e.g. nuc1):
 
     $ sudo mount /dev/sdb1 /mnt && cd /mnt
-    $ export NUC=nuc1
-    $ sudo ./coreos-install.sh -d /dev/sda -n $NUC
+    $ sudo ./coreos-install.sh -d /dev/sda -n <NAME>
     $ sudo reboot
 
 Unplug the USB drive and watch your NUC boot into the freshly installed CoreOS image. You should be able to access it through SSH using the key you've generated previously (see above).
@@ -80,3 +79,22 @@ Unplug the USB drive and watch your NUC boot into the freshly installed CoreOS i
 
 The installation contains everything which is needed for running the INAETICS demonstrator. You only need be sure that you start NUC1 first, because it is the DHCP server for the other NUCs. For more information on how to check, use and debug the demonstrator, please see the documentation on our [Kubernetes Demo Cluster repository](https://github.com/INAETICS/kubernetes-demo-cluster)
 
+# Tips & Tricks
+
+## Mounting the USB drive on OSX
+
+If the USB drive is not mounted automatically, you can do that manually:
+
+    $ diskutil list (look for the disk number of the USB drive)    
+    $ mkdir /Volumes/USBdrive
+    $ sudo mount -t msdos /dev/disk<DISKNUMBER>s1 /Volumes/USBDrive
+
+## CoreOS autologin
+
+If you want to use CoreOS directly on the NUCs (so not via ssh), you can change the boot options to let CoreOS automatically login the `core` user.
+
+- press `cursor down` when you see the grub menu
+- choose `CoreOS USR-A`
+- press `e`
+- add `coreos.autologin` to the boot options
+- press `F10` to boot the just edited boot entry
