@@ -48,7 +48,7 @@ The baremetal demonstrator uses several SSL certificates to secure Kubernetes. F
 The Intel NUCs are UEFI based machines, which allows us to use a nice trick to boot any ISO image, such as CoreOS, without the need to burn that image to disk (as you normally would to when creating a bootable CD or USB drive). This allows us to use the USB drive to carry our INAETICS installation files as well. Creating such a "multi-boot" USB drive is nicely documented on [this page](http://ubuntuforums.org/showthread.php?t=2276498). Finally you need to edit `/boot/grub/grub.cfg`, replace the content with
 
     menuentry 'CoreOS' {
-	    set isofile="/coreos_production_iso_image.iso"
+	    set isofile="/inaetics/coreos_production_iso_image.iso"
 	    loopback loop $isofile
 	    linux (loop)/coreos/vmlinuz ro noswap console=tty0 console=ttyS0 coreos.autologin=tty1 coreos.autologin=ttyS0 --
 	    initrd (loop)/coreos/cpio.gz
@@ -57,9 +57,9 @@ The Intel NUCs are UEFI based machines, which allows us to use a nice trick to b
 ### Downloading needed binaries, docker images and CoreOS images
 For running the INAETICS demonstrator, several INAETICS and 3rd party binaries and Docker images are needed. Run the `${BAREMETAL_INSTALL}/initial-download.sh` script to do this. It also downloads and verifies the CoreOS image which will be used for booting the USB drive and installing the NUCs.
 
-Now we can copy the files from ${BAREMETAL_INSTALL} to the bootable USB drive using the `${BAREMETAL_INSTALL}/copy_all.sh`. This script needs a single argument which should be the path to your mounted USB drive. For example:
+Now we can copy the files from ${BAREMETAL_INSTALL} to the bootable USB drive using the `${BAREMETAL_INSTALL}/copy_all.sh`. This script needs a single argument which should be the path to your mounted USB drive (see "Tips & Tricks" for mounting the drive on OSX). For example:
 
-    $ ./copy_all.sh /Volumes/GRUB2EFI
+    $ ./copy_all.sh /Volumes/GRUB2EFI/inaetics
 
 ## Installation
 
@@ -69,7 +69,7 @@ The installation is to be repeated for each NUC. We assign a hostname to each of
 
 To install CoreOS, boot from the USB drive, mount the disk and run the installer script (replace <NAME> with the name of the NUC you’re installing to, e.g. nuc1):
 
-    $ sudo mount /dev/sdb1 /mnt && cd /mnt
+    $ sudo mount /dev/sdb1 /mnt && cd /mnt/inaetics
     $ sudo ./coreos-install.sh -d /dev/sda -n <NAME>
     $ sudo reboot
 
@@ -98,3 +98,12 @@ If you want to use CoreOS directly on the NUCs (so not via ssh), you can change 
 - press `e`
 - add `coreos.autologin` to the boot options
 - press `F10` to boot the just edited boot entry
+
+## Network configuration
+
+- nuc1 is configured to use a fixed ip address (172.17.8.20), see `oem/nuc1/cloudinit/cloud-config.yml -> "00-eno1.network"`
+- nuc1 is also running a DHCP server, which provides ip adresses for the other nucs (172.17.8.10<nucNr>). The mapping from nuc to ip address is done using the MAC addresses, which must be changed to your needs, see `oem/nuc1/cloudinit/cloud-config-2nd-stage.yml -> "local-network-setup.service"`
+
+## Using ELK
+
+If you want to use the ELK stack for debugging, you have to copy their tar files (see tmp directory) to /opt/images on nuc1 and reboot nuc1. This is skipped at the initial installation because the CoreOS partition is too small at that moment (it is resized during first boot).

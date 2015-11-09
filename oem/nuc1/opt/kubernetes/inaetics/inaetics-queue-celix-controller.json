@@ -42,7 +42,11 @@
                 "value": "172.17.8.20:2379"
               }
             ],
-            "resources": {},
+            "resources": {
+              "limits" : {
+                "memory": "1000Mi"
+              }
+            },           
             "terminationMessagePath": "/dev/termination-log",
             "imagePullPolicy": "IfNotPresent",
             "livenessProbe": {

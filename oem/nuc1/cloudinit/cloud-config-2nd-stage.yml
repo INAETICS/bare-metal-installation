@@ -42,7 +42,7 @@ coreos:
 
     - name: "docker.service"
       command: start
-                          
+                  
     - name: "docker-load.service"
       command: start
       content: |
@@ -58,6 +58,21 @@ coreos:
         TimeoutStartSec=0
         Restart=no
 
+    - name: "local-network-setup.service"
+      command: start
+      runtime: true
+      content: |
+          [Unit]
+          Description=a NAT and DHCP for the local network
+          After=network-online.target docker.service docker-load.servivce
+          Requires=network-online.target docker.service docker-load.service
+
+          [Service]
+          ExecStart=/usr/bin/docker run --net=host -d --cap-add=NET_ADMIN andyshinn/dnsmasq -R -p 0 -a 172.17.8.20 -F 172.17.8.102,172.17.8.106,12h -G C0:3F:D5:67:02:9F,172.17.8.102,nuc2 -G C0:3F:D5:67:07:76,172.17.8.103,nuc3 -G C0:3F:D5:64:FD:54,172.17.8.104,nuc4 -G C0:3F:D5:67:01:AB,172.17.8.105,nuc5 -G C0:3F:D5:66:D1:85,172.17.8.106,nuc6
+          ExecStartPost=/usr/sbin/iptables -A FORWARD -d 172.17.8.20 -m state --state ESTABLISHED,RELATED -j ACCEPT
+          ExecStartPost=/usr/sbin/iptables -A FORWARD -s 172.17.8.20 -j ACCEPT
+          ExecStartPost=/usr/sbin/iptables -t nat -A POSTROUTING -o eno1 -j MASQUERADE
+                                    
     - name: "docker-registry.service"
       command: start
       content: |

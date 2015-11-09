@@ -12,14 +12,14 @@ spec:
     - /hyperkube
     - proxy
     - --master=https://172.17.8.20
-    - --kubeconfig=/opt/kubernetes/cluster-kubeconfig.yaml
+    - --kubeconfig=/opt/kubernetes/worker-kubeconfig.yaml
     securityContext:
       privileged: true
     volumeMounts:
       - mountPath: /etc/ssl/certs
         name: ssl-certs
         readOnly: true
-      - mountPath: /opt/kubernetes/cluster-kubeconfig.yaml
+      - mountPath: /opt/kubernetes/worker-kubeconfig.yaml
         name: kubeconfig
         readOnly: true
       - mountPath: /opt/ssl
@@ -31,7 +31,7 @@ spec:
         path: /usr/share/ca-certificates
     - name: kubeconfig
       hostPath:
-        path: /home/core/k8s/cluster-kubeconfig.yaml
+        path: /opt/kubernetes/worker-kubeconfig.yaml
     - name: ssl-certs-kubernetes
       hostPath:
         path: /opt/ssl

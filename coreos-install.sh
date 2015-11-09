@@ -125,7 +125,7 @@ cp "${OPT_DIR}/ssl/certs/ca.pem" "${WORKDIR}/rootfs/etc/docker/certs.d/172.17.8.
 cp -rL "${OPT_DIR}"/* "${WORKDIR}/rootfs/opt/"
 find "${WORKDIR}/rootfs/opt" -type f -exec chmod 0644 {} \;
 find "${WORKDIR}/rootfs/opt" -type d -exec chmod 0755 {} \;
-chmod 0755 "${WORKDIR}/rootfs/opt/bin/kubectl" "${WORKDIR}/rootfs/bin"/*.sh
+chmod 0755 "${WORKDIR}/rootfs/opt/bin/kubectl" "${WORKDIR}/rootfs/opt/bin"/*.sh
 chown -R 0:500 "${WORKDIR}/rootfs/opt/ssl/"
 chmod 0640 "${WORKDIR}/rootfs/opt/ssl/priv"/*-key.pem
 chmod 0644 "${WORKDIR}/rootfs/opt/ssl/certs"/*.pem

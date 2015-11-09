@@ -45,7 +45,7 @@
             ],
             "resources": {
               "limits" : {
-                "memory": "300Mi"
+                "memory": "1000Mi"
               }
             },
             "volumeMounts": [

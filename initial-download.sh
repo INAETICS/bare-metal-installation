@@ -36,6 +36,7 @@ echo "get kubectl"
 wget -O "oem/nuc1/opt/bin/kubectl" "https://storage.googleapis.com/kubernetes-release/release/$k8s_version/bin/linux/amd64/kubectl"
 
 # pull and save 3rd party images
+pullAndSave "andyshinn/dnsmasq" "tmp/dnsmasq.tar"
 pullAndSave "gcr.io/google_containers/pause:$pause_version" "tmp/pause.tar"
 pullAndSave "gcr.io/google_containers/hyperkube:$k8s_version" "tmp/hyperkube.tar"
 pullAndSave "quay.io/coreos/flannel:$flannel_version" "tmp/flannel.tar" 
@@ -45,7 +46,7 @@ pullAndSave "logstash:latest" "tmp/logstash.tar"
 pullAndSave "slintes/kibana:latest" "tmp/kibana.tar"
 
 # copy tarred docker images to needed location
-for NAME in celix-agent felix-agent node-provisioning elasticsearch logstash kibana flannel registry hyperkube pause; do
+for NAME in dnsmasq celix-agent felix-agent node-provisioning flannel registry hyperkube pause; do
 	cp "tmp/$NAME.tar" oem/nuc1/opt/images/
 done
 for NAME in flannel hyperkube pause; do
