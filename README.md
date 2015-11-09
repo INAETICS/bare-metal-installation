@@ -1,7 +1,5 @@
 # Bare-Metal Installation
 
-# WORK IN PROGRESS, NOT WORKING YET!
-
 This page explains how to install the INAETICS demonstrator on bare-metal machines. The hardware used for this are 6 [Intel D54250WYK NUCs](http://www.intel.com/content/www/us/en/nuc/nuc-kit-d54250wyk.html) each with 16GB of memory and a 256GB disk. On each of the NUCs, we'll install a plain CoreOS installation along with a couple of extra files to ease the bootstrap of the INAETICS demonstrator. To simplify the installation, we've created a couple of scripts that you can use to reproduce the installation on your own set of machines. These scripts can be found at Github and are used in the remainder of this document. 
 
 ## Preparations
